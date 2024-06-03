@@ -7,6 +7,7 @@ import (
 
 	"github.com/MATEAV23/TwGo/awsgo"
 	"github.com/MATEAV23/TwGo/db"
+	"github.com/MATEAV23/TwGo/handlers"
 	"github.com/MATEAV23/TwGo/models"
 	"github.com/MATEAV23/TwGo/secretmanager"
 	"github.com/aws/aws-lambda-go/events"
@@ -70,6 +71,21 @@ func EjecutoLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 			},
 		}
 		return res, nil
+	}
+
+	respAPI := handlers.Manejadores(awsgo.Ctx, request)
+
+	if respAPI.CustomResp == nil {
+		res = &events.APIGatewayProxyResponse{
+			StatusCode: respAPI.Status,
+			Body:       respAPI.Message,
+			Headers: map[string]string{
+				"Content-Type": "application/json",
+			},
+		}
+		return res, nil
+	} else {
+		return respAPI.CustomResp, nil
 	}
 
 }
