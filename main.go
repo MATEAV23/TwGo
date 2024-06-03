@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/MATEAV23/TwGo/awsgo"
+	"github.com/MATEAV23/TwGo/db"
 	"github.com/MATEAV23/TwGo/models"
 	"github.com/MATEAV23/TwGo/secretmanager"
 	"github.com/aws/aws-lambda-go/events"
@@ -56,6 +57,20 @@ func EjecutoLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("jwtsign"), SecretModel.JWTSign)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("body"), request.Body)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("bucketName"), os.Getenv("BucketName"))
+
+	// Chequeo de conexion de la base de datos
+
+	err = db.ConectarDB(awsgo.Ctx)
+	if err != nil {
+		res = &events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       "Error en la Conexion a la base de datos " + err.Error(),
+			Headers: map[string]string{
+				"Content-Type": "application/json",
+			},
+		}
+		return res, nil
+	}
 
 }
 
