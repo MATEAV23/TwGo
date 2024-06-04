@@ -6,6 +6,7 @@ import (
 
 	"github.com/MATEAV23/TwGo/jwt"
 	"github.com/MATEAV23/TwGo/models"
+	"github.com/MATEAV23/TwGo/routers"
 	"github.com/aws/aws-lambda-go/events"
 )
 
@@ -18,10 +19,17 @@ func Manejadores(ctx context.Context, request events.APIGatewayProxyRequest) mod
 
 	isOK, statusCode, msg, claim := validoAutorization(ctx, request)
 
+	if !isOK {
+		r.Status = statusCode
+		r.Message = msg
+		return r
+	}
+
 	switch ctx.Value(models.Key("method")).(string) {
 	case "POST":
 		switch ctx.Value(models.Key("path")).(string) {
-
+		case "registro":
+			return routers.Registro()
 		}
 		//
 	case "GET":
